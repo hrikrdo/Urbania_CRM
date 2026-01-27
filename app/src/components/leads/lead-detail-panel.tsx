@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   IconCalendar,
   IconCheck,
@@ -9,7 +9,6 @@ import {
   IconPhone,
   IconSnowflake,
   IconTemperature,
-  IconX,
   IconBrandWhatsapp,
   IconCalendarEvent,
   IconNotes,
@@ -17,14 +16,13 @@ import {
   IconUser,
   IconMapPin,
   IconCurrencyDollar,
-  IconBrandFacebook,
-  IconBrandGoogle,
   IconAd2,
   IconSparkles,
   IconChevronDown,
   IconFolder,
-  IconFileText,
   IconRefresh,
+  IconLoader2,
+  IconId,
 } from "@tabler/icons-react"
 import { format, formatDistanceToNow } from "date-fns"
 import { es } from "date-fns/locale"
@@ -56,16 +54,20 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
-import { useLeadsStore } from "@/stores/leads-store"
+import { useLeadsStore, type LeadDetailTab } from "@/stores/leads-store"
 import {
   useUpdateLead,
   useAssignLead,
   useLeadStatuses,
   useUsers,
   useProjects,
+  useLead,
 } from "@/hooks/use-leads"
 import { TasksList } from "@/components/tasks"
 import { LeadCreditCheckSection } from "@/components/tramites"
+import { LeadReservationsSection } from "@/components/reservations/lead-reservations-section"
+import { LeadAppointmentsSection } from "@/components/agenda/lead-appointments-section"
+import { LeadAssignmentHistory } from "@/components/distribution"
 
 const temperatureConfig = {
   hot: { icon: IconFlame, color: "text-chart-1", label: "Caliente" },
@@ -74,14 +76,56 @@ const temperatureConfig = {
 }
 
 export function LeadDetailPanel() {
-  const { selectedLead, isDetailOpen, closeDetail } = useLeadsStore()
+  const {
+    selectedLead,
+    isDetailOpen,
+    closeDetail,
+    defaultTab,
+    pendingLeadId,
+    setSelectedLead,
+    setPendingLeadId,
+  } = useLeadsStore()
+
   const { data: statuses } = useLeadStatuses()
   const { data: users } = useUsers()
   const { data: projects } = useProjects()
   const updateLead = useUpdateLead()
   const assignLead = useAssignLead()
 
+  // Load lead by ID if pendingLeadId is set
+  const { data: loadedLead, isLoading: isLoadingLead } = useLead(pendingLeadId || "")
+
   const [newNote, setNewNote] = useState("")
+  const [activeTab, setActiveTab] = useState<LeadDetailTab>(defaultTab)
+
+  // Update active tab when defaultTab changes (from store)
+  useEffect(() => {
+    setActiveTab(defaultTab)
+  }, [defaultTab])
+
+  // When lead is loaded by ID, set it as selectedLead
+  useEffect(() => {
+    if (loadedLead && pendingLeadId) {
+      setSelectedLead(loadedLead)
+      setPendingLeadId(null)
+    }
+  }, [loadedLead, pendingLeadId, setSelectedLead, setPendingLeadId])
+
+  // Show loading state when loading lead by ID
+  if (isDetailOpen && pendingLeadId && isLoadingLead) {
+    return (
+      <Sheet open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-[1200px] p-0 flex flex-col gap-0"
+        >
+          <div className="flex items-center justify-center h-full">
+            <IconLoader2 className="size-8 animate-spin text-muted-foreground" />
+          </div>
+        </SheetContent>
+      </Sheet>
+    )
+  }
 
   if (!selectedLead) return null
 
@@ -376,6 +420,27 @@ export function LeadDetailPanel() {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
+                      <IconId className="size-4 text-muted-foreground mt-1 shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Cédula</p>
+                        <Input
+                          placeholder="Ingresa la cédula"
+                          defaultValue={selectedLead.cedula || ""}
+                          className="h-8 text-sm"
+                          onBlur={(e) => {
+                            const value = e.target.value || null
+                            if (value !== selectedLead.cedula) {
+                              updateLead.mutate({
+                                id: selectedLead.id,
+                                updates: { cedula: value },
+                              })
+                              toast.success("Cédula actualizada")
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
                       <IconMapPin className="size-4 text-muted-foreground mt-1 shrink-0" />
                       <div>
                         <p className="text-xs text-muted-foreground">Dirección</p>
@@ -522,7 +587,7 @@ export function LeadDetailPanel() {
 
           {/* Main Content Area */}
           <main className="flex-1 flex flex-col min-h-0">
-            <Tabs defaultValue="activity" className="flex-1 flex flex-col min-h-0">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as LeadDetailTab)} className="flex-1 flex flex-col min-h-0">
               <div className="shrink-0 pt-4 pb-2 px-6 border-b">
                 <TabsList className="w-full justify-start rounded-none bg-transparent h-auto gap-1 overflow-x-auto">
                   <TabsTrigger value="activity" className="text-sm data-[state=active]:bg-muted px-4 py-2 rounded-md shrink-0">
@@ -543,8 +608,14 @@ export function LeadDetailPanel() {
                   <TabsTrigger value="process" className="text-sm data-[state=active]:bg-muted px-4 py-2 rounded-md shrink-0">
                     Trámite
                   </TabsTrigger>
+                  <TabsTrigger value="reservation" className="text-sm data-[state=active]:bg-muted px-4 py-2 rounded-md shrink-0">
+                    Reserva
+                  </TabsTrigger>
                   <TabsTrigger value="returns" className="text-sm data-[state=active]:bg-muted px-4 py-2 rounded-md shrink-0">
                     Devoluciones
+                  </TabsTrigger>
+                  <TabsTrigger value="assignments" className="text-sm data-[state=active]:bg-muted px-4 py-2 rounded-md shrink-0">
+                    Asignaciones
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -760,11 +831,7 @@ export function LeadDetailPanel() {
 
                 {/* Appointments Tab */}
                 <TabsContent value="appointments" className="m-0 p-4">
-                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                    <IconCalendarEvent className="size-10 mb-3 opacity-40" />
-                    <p className="text-sm font-medium">Sin citas programadas</p>
-                    <p className="text-xs mt-1">Agenda una cita con el cliente</p>
-                  </div>
+                  <LeadAppointmentsSection leadId={selectedLead.id} />
                 </TabsContent>
 
                 {/* Process Tab */}
@@ -775,6 +842,11 @@ export function LeadDetailPanel() {
                   />
                 </TabsContent>
 
+                {/* Reservation Tab */}
+                <TabsContent value="reservation" className="m-0 p-4">
+                  <LeadReservationsSection leadId={selectedLead.id} />
+                </TabsContent>
+
                 {/* Returns Tab */}
                 <TabsContent value="returns" className="m-0 p-4">
                   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -782,6 +854,11 @@ export function LeadDetailPanel() {
                     <p className="text-sm font-medium">Sin devoluciones</p>
                     <p className="text-xs mt-1">No hay devoluciones registradas</p>
                   </div>
+                </TabsContent>
+
+                {/* Assignments Tab */}
+                <TabsContent value="assignments" className="m-0 p-4">
+                  <LeadAssignmentHistory leadId={selectedLead.id} />
                 </TabsContent>
               </ScrollArea>
             </Tabs>

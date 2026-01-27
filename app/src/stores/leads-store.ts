@@ -5,6 +5,18 @@ type ViewMode = "kanban" | "list"
 type TimerStatus = "active" | "expiring" | "expired" | null
 type Temperature = "hot" | "warm" | "cold" | null
 
+// Tab types for the unified lead detail panel
+export type LeadDetailTab =
+  | "activity"
+  | "notes"
+  | "tasks"
+  | "files"
+  | "appointments"
+  | "process"
+  | "reservation"
+  | "returns"
+  | "assignments"
+
 interface LeadFilters {
   search: string
   status_id: string | null
@@ -22,8 +34,15 @@ interface LeadsStore {
 
   // Detail panel state
   isDetailOpen: boolean
-  openDetail: (lead: LeadWithRelations) => void
+  defaultTab: LeadDetailTab
+  openDetail: (lead: LeadWithRelations, tab?: LeadDetailTab) => void
+  openDetailById: (leadId: string, tab?: LeadDetailTab) => void
   closeDetail: () => void
+  setDefaultTab: (tab: LeadDetailTab) => void
+
+  // Lead ID to load (for async loading)
+  pendingLeadId: string | null
+  setPendingLeadId: (id: string | null) => void
 
   // View mode
   viewMode: ViewMode
@@ -57,8 +76,17 @@ export const useLeadsStore = create<LeadsStore>((set) => ({
 
   // Detail panel
   isDetailOpen: false,
-  openDetail: (lead) => set({ selectedLead: lead, isDetailOpen: true }),
-  closeDetail: () => set({ isDetailOpen: false }),
+  defaultTab: "activity",
+  openDetail: (lead, tab = "activity") =>
+    set({ selectedLead: lead, isDetailOpen: true, defaultTab: tab, pendingLeadId: null }),
+  openDetailById: (leadId, tab = "activity") =>
+    set({ pendingLeadId: leadId, isDetailOpen: true, defaultTab: tab, selectedLead: null }),
+  closeDetail: () => set({ isDetailOpen: false, pendingLeadId: null }),
+  setDefaultTab: (tab) => set({ defaultTab: tab }),
+
+  // Pending lead ID
+  pendingLeadId: null,
+  setPendingLeadId: (id) => set({ pendingLeadId: id }),
 
   // View mode
   viewMode: "kanban",

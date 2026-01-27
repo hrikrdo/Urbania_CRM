@@ -18,24 +18,38 @@ export type ProjectWithStats = Project & {
 export async function getProjects(): Promise<ProjectWithStats[]> {
   const supabase = createClient()
 
+  // Get projects with units (unit_types fetched separately due to FK issue)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase
+  const { data: projects, error: projectsError } = await (supabase
     .from("projects") as any)
     .select(`
       *,
-      unit_types(*),
       units(id, status)
     `)
     .order("created_at", { ascending: false })
 
-  if (error) throw error
+  if (projectsError) throw projectsError
+
+  // Get all unit_types separately
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: unitTypes } = await (supabase
+    .from("unit_types") as any)
+    .select("*")
+
+  const unitTypesMap = new Map<string, UnitType[]>()
+  ;(unitTypes || []).forEach((ut: UnitType & { project_id?: string }) => {
+    if (ut.project_id) {
+      const existing = unitTypesMap.get(ut.project_id) || []
+      unitTypesMap.set(ut.project_id, [...existing, ut])
+    }
+  })
 
   // Calculate stats for each project
-  return (data || []).map((project: Project & { unit_types?: UnitType[]; units?: { id: string; status: string }[] }) => {
+  return (projects || []).map((project: Project & { units?: { id: string; status: string }[] }) => {
     const units = project.units || []
     return {
       ...project,
-      unit_types: project.unit_types,
+      unit_types: unitTypesMap.get(project.id) || [],
       units_count: units.length,
       available_count: units.filter((u) => u.status === "available").length,
       reserved_count: units.filter((u) => u.status === "reserved").length,
@@ -49,12 +63,12 @@ export async function getProjects(): Promise<ProjectWithStats[]> {
 export async function getProject(id: string): Promise<ProjectWithStats | null> {
   const supabase = createClient()
 
+  // Get project with units
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase
     .from("projects") as any)
     .select(`
       *,
-      unit_types(*),
       units(id, status)
     `)
     .eq("id", id)
@@ -63,11 +77,18 @@ export async function getProject(id: string): Promise<ProjectWithStats | null> {
   if (error) throw error
   if (!data) return null
 
-  const project = data as Project & { unit_types?: UnitType[]; units?: { id: string; status: string }[] }
+  // Get unit_types separately
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: unitTypes } = await (supabase
+    .from("unit_types") as any)
+    .select("*")
+    .eq("project_id", id)
+
+  const project = data as Project & { units?: { id: string; status: string }[] }
   const units = project.units || []
   return {
     ...project,
-    unit_types: project.unit_types,
+    unit_types: unitTypes || [],
     units_count: units.length,
     available_count: units.filter((u) => u.status === "available").length,
     reserved_count: units.filter((u) => u.status === "reserved").length,

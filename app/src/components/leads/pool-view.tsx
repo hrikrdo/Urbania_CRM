@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select"
 import { usePoolLeads, useClaimFromPool, useProjects, useUsers } from "@/hooks/use-leads"
 import { useLeadsStore } from "@/stores/leads-store"
+import { useCurrentUser } from "@/hooks/use-current-user"
 import type { LeadWithRelations } from "@/lib/services/leads"
 
 // Constants for attention time
@@ -260,14 +261,15 @@ export function PoolView() {
   const { data: leads, isLoading } = usePoolLeads()
   const { data: projects } = useProjects()
   const { data: users } = useUsers()
+  const { data: currentUser } = useCurrentUser()
   const claimLead = useClaimFromPool()
 
   // Filter state
   const [projectFilter, setProjectFilter] = React.useState<string>("__all__")
   const [vendorFilter, setVendorFilter] = React.useState<string>("__all__")
 
-  // TODO: Get current user ID from auth context
-  const currentUserId = "current-user-id"
+  // Get current user ID from auth context
+  const currentUserId = currentUser?.id
 
   // Filter leads based on selected filters
   // Note: Pool leads are unassigned, so vendor filter is for UI purposes
@@ -286,11 +288,17 @@ export function PoolView() {
   const handleClaim = async (leadId: string) => {
     // Use selected vendor or fallback to current user
     const assignToUserId = vendorFilter !== "__all__" ? vendorFilter : currentUserId
+
+    if (!assignToUserId) {
+      toast.error("Selecciona un vendedor o inicia sesión para tomar el lead")
+      return
+    }
+
     try {
       await claimLead.mutateAsync({ leadId, userId: assignToUserId })
       const vendorName = vendorFilter !== "__all__"
         ? users?.find(u => u.id === vendorFilter)?.first_name
-        : "ti"
+        : currentUser?.first_name || "ti"
       toast.success(`Lead asignado a ${vendorName} correctamente`)
     } catch {
       toast.error("Error al tomar el lead")

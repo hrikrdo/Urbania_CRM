@@ -15,6 +15,9 @@ import {
   IconFileDescription,
   IconCreditCard,
   IconBell,
+  IconSpeakerphone,
+  IconTicket,
+  IconHomeCheck,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -54,8 +57,13 @@ const data = {
     },
     {
       title: "Citas",
-      url: "/citas",
+      url: "/agenda",
       icon: IconCalendarEvent,
+    },
+    {
+      title: "Marketing",
+      url: "/marketing",
+      icon: IconSpeakerphone,
     },
     {
       title: "Trámites",
@@ -63,9 +71,19 @@ const data = {
       icon: IconFileDescription,
     },
     {
+      title: "Cierre",
+      url: "/cierre",
+      icon: IconTicket,
+    },
+    {
       title: "Cobranza",
       url: "/cobranza",
       icon: IconCreditCard,
+    },
+    {
+      title: "Post-Venta",
+      url: "/postventa",
+      icon: IconHomeCheck,
     },
     {
       title: "Proyectos",

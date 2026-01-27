@@ -28,8 +28,6 @@ import {
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import {
   Select,
   SelectContent,
@@ -46,7 +44,7 @@ import {
   type TramiteStage,
 } from "@/hooks/use-credit-checks"
 import { useProjects } from "@/hooks/use-inventory"
-import { CreditCheckDetail } from "./credit-check-detail"
+import { useLeadsStore } from "@/stores/leads-store"
 import { cn } from "@/lib/utils"
 
 // Define the stages of the tramite process
@@ -236,8 +234,10 @@ export function TramitesKanban({ projectFilter, onProjectFilterChange }: Tramite
   )
   const { data: projects } = useProjects()
   const updateCreditCheck = useUpdateCreditCheck()
-  const [selectedCheck, setSelectedCheck] = useState<CreditCheckWithRelations | null>(null)
   const [activeCheck, setActiveCheck] = useState<CreditCheckWithRelations | null>(null)
+
+  // Use unified lead detail panel
+  const { openDetailById } = useLeadsStore()
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -355,7 +355,12 @@ export function TramitesKanban({ projectFilter, onProjectFilterChange }: Tramite
               key={stage.id}
               stage={stage}
               checks={checksByStage[stage.id] || []}
-              onCardClick={setSelectedCheck}
+              onCardClick={(check) => {
+                // Open unified lead detail panel with "process" tab
+                if (check.lead_id) {
+                  openDetailById(check.lead_id, "process")
+                }
+              }}
             />
           ))}
         </div>
@@ -370,21 +375,6 @@ export function TramitesKanban({ projectFilter, onProjectFilterChange }: Tramite
           )}
         </DragOverlay>
       </DndContext>
-
-      {/* Detail Sheet */}
-      <Sheet open={!!selectedCheck} onOpenChange={() => setSelectedCheck(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-[1200px] p-0 flex flex-col gap-0">
-          <VisuallyHidden>
-            <SheetTitle>Verificación de Crédito</SheetTitle>
-          </VisuallyHidden>
-          {selectedCheck && (
-            <CreditCheckDetail
-              creditCheck={selectedCheck}
-              onClose={() => setSelectedCheck(null)}
-            />
-          )}
-        </SheetContent>
-      </Sheet>
     </>
   )
 }

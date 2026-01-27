@@ -1,3 +1,13 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/expire-leads",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/reset-daily-counters",
+      "schedule": "0 0 * * *"
+    }
+  ]
 }

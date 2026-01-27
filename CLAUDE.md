@@ -222,6 +222,73 @@ SOLO usar estos componentes con su estructura exacta:
 - NO usar shadows personalizados (solo los de shadcn)
 - NO cambiar border-radius fuera de los estándares (6, 8, 12px)
 - NO usar tipografías distintas a Inter
+- NO usar inputs nativos del navegador (`<input type="date">`, `<input type="time">`) - usar componentes shadcn como `DatePicker` con `Calendar` + `Popover`, o `Select` para horas
+- NO duplicar iconos en headers si ya están en el sidebar
+- NO usar valores de padding/spacing con `.5` (como `p-1.5`, `gap-2.5`)
+- NO crear headers de módulos personalizados - usar siempre el componente `ModuleHeader`
+
+### Patrones Obligatorios
+
+**Headers de Módulos:**
+Todos los módulos DEBEN usar el componente `ModuleHeader` para mantener consistencia:
+```tsx
+import { ModuleHeader } from "@/components/module-header"
+
+<ModuleHeader
+  title="Nombre del Módulo"
+  description="Descripción breve del módulo"
+>
+  {/* Acciones opcionales como botones */}
+</ModuleHeader>
+```
+
+**Selección de Fecha:**
+Siempre usar `DatePicker` (Calendar + Popover) en lugar de inputs nativos:
+```tsx
+import { DatePicker } from "@/components/ui/date-picker"
+
+<DatePicker
+  value={date}
+  onChange={setDate}
+  placeholder="Seleccionar fecha"
+/>
+```
+
+**Selección de Hora:**
+Usar `Select` con opciones generadas en intervalos de 15 minutos:
+```tsx
+<Select value={time} onValueChange={setTime}>
+  <SelectTrigger>
+    <SelectValue placeholder="Seleccionar hora" />
+  </SelectTrigger>
+  <SelectContent className="max-h-60">
+    {Array.from({ length: 24 * 4 }).map((_, i) => {
+      const hour = Math.floor(i / 4)
+      const minute = (i % 4) * 15
+      const time = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`
+      return (
+        <SelectItem key={time} value={time}>
+          {time}
+        </SelectItem>
+      )
+    })}
+  </SelectContent>
+</Select>
+```
+
+**Campos editables en paneles de detalle:**
+Usar el patrón `onBlur` para guardar cambios automáticamente:
+```tsx
+<Input
+  defaultValue={lead.field || ""}
+  onBlur={(e) => {
+    const value = e.target.value || null
+    if (value !== lead.field) {
+      updateLead.mutate({ id: lead.id, updates: { field: value } })
+    }
+  }}
+/>
+```
 
 ---
 

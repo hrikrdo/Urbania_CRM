@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
+import { LeadDetailPanel } from "@/components/leads/lead-detail-panel"
 import {
   SidebarInset,
   SidebarProvider,
@@ -30,6 +31,9 @@ export default function CRMLayout({
           </div>
         </div>
       </SidebarInset>
+
+      {/* Unified Lead Detail Panel - Available globally */}
+      <LeadDetailPanel />
     </SidebarProvider>
   )
 }

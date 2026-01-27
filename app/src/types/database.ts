@@ -754,6 +754,7 @@ export type Database = {
           title: string | null
           description: string | null
           location: string | null
+          meeting_link: string | null
           scheduled_at: string
           duration_minutes: number
           reminder_sent: boolean
@@ -763,6 +764,7 @@ export type Database = {
           status: string
           attended: boolean | null
           outcome: string | null
+          outcome_notes: string | null
           follow_up_notes: string | null
           created_at: string
           updated_at: string
@@ -777,6 +779,7 @@ export type Database = {
           title?: string | null
           description?: string | null
           location?: string | null
+          meeting_link?: string | null
           scheduled_at: string
           duration_minutes?: number
           reminder_sent?: boolean
@@ -786,6 +789,7 @@ export type Database = {
           status?: string
           attended?: boolean | null
           outcome?: string | null
+          outcome_notes?: string | null
           follow_up_notes?: string | null
           created_at?: string
           updated_at?: string
@@ -800,6 +804,7 @@ export type Database = {
           title?: string | null
           description?: string | null
           location?: string | null
+          meeting_link?: string | null
           scheduled_at?: string
           duration_minutes?: number
           reminder_sent?: boolean
@@ -809,6 +814,7 @@ export type Database = {
           status?: string
           attended?: boolean | null
           outcome?: string | null
+          outcome_notes?: string | null
           follow_up_notes?: string | null
           created_at?: string
           updated_at?: string
@@ -1116,6 +1122,104 @@ export type Database = {
           created_at?: string
         }
       }
+      user_projects: {
+        Row: {
+          id: string
+          user_id: string
+          project_id: string
+          is_active: boolean
+          last_assigned_at: string | null
+          leads_assigned_today: number
+          max_leads_per_day: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          project_id: string
+          is_active?: boolean
+          last_assigned_at?: string | null
+          leads_assigned_today?: number
+          max_leads_per_day?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          project_id?: string
+          is_active?: boolean
+          last_assigned_at?: string | null
+          leads_assigned_today?: number
+          max_leads_per_day?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_projects_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_projects_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      lead_assignment_history: {
+        Row: {
+          id: string
+          lead_id: string
+          user_id: string | null
+          action: string
+          assigned_at: string | null
+          expired_at: string | null
+          contacted_at: string | null
+          status_changed_to: string | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          lead_id: string
+          user_id?: string | null
+          action: string
+          assigned_at?: string | null
+          expired_at?: string | null
+          contacted_at?: string | null
+          status_changed_to?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          lead_id?: string
+          user_id?: string | null
+          action?: string
+          assigned_at?: string | null
+          expired_at?: string | null
+          contacted_at?: string | null
+          status_changed_to?: string | null
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_assignment_history_lead_id_fkey"
+            columns: ["lead_id"]
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_assignment_history_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1214,6 +1318,13 @@ export type MessageInsert = InsertTables<"messages">
 
 export type MessageTemplate = Tables<"message_templates">
 
+export type UserProject = Tables<"user_projects">
+export type UserProjectInsert = InsertTables<"user_projects">
+export type UserProjectUpdate = UpdateTables<"user_projects">
+
+export type LeadAssignmentHistory = Tables<"lead_assignment_history">
+export type LeadAssignmentHistoryInsert = InsertTables<"lead_assignment_history">
+
 // Enum types
 export type ActivityType = Database["public"]["Enums"]["activity_type"]
 
@@ -1230,4 +1341,14 @@ export type LeadWithRelations = Lead & {
 
 export type UserWithRole = User & {
   role?: Role
+}
+
+export type UserProjectWithRelations = UserProject & {
+  user?: User
+  project?: Project
+}
+
+export type LeadAssignmentHistoryWithRelations = LeadAssignmentHistory & {
+  user?: User
+  lead?: Lead
 }

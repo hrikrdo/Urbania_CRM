@@ -14,7 +14,6 @@ import {
   IconChevronRight,
 } from "@tabler/icons-react"
 
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -33,18 +32,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import {
   useCreditChecks,
   useCreditCheckMetrics,
-  type CreditCheckWithRelations,
   type APCStatus,
   type CreditCheckResult,
 } from "@/hooks/use-credit-checks"
-import { CreditCheckDetail } from "./credit-check-detail"
+import { useLeadsStore } from "@/stores/leads-store"
 
 // Using shadcn/ui chart colors for APC status indicators
 const apcStatusConfig: Record<APCStatus, { label: string; color: string }> = {
@@ -65,7 +61,9 @@ export function CreditChecksList() {
   const [search, setSearch] = useState("")
   const [resultFilter, setResultFilter] = useState<CreditCheckResult | "all">("all")
   const [apcFilter, setApcFilter] = useState<APCStatus | "all">("all")
-  const [selectedCheck, setSelectedCheck] = useState<CreditCheckWithRelations | null>(null)
+
+  // Use unified lead detail panel
+  const { openDetailById } = useLeadsStore()
 
   const { data: metrics, isLoading: metricsLoading } = useCreditCheckMetrics()
   const { data: creditChecks, isLoading: checksLoading } = useCreditChecks(
@@ -227,7 +225,11 @@ export function CreditChecksList() {
                   <TableRow
                     key={check.id}
                     className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => setSelectedCheck(check)}
+                    onClick={() => {
+                      if (check.lead_id) {
+                        openDetailById(check.lead_id, "process")
+                      }
+                    }}
                   >
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -316,21 +318,6 @@ export function CreditChecksList() {
           )}
         </CardContent>
       </Card>
-
-      {/* Detail Sheet */}
-      <Sheet open={!!selectedCheck} onOpenChange={() => setSelectedCheck(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-[1200px] p-0 flex flex-col gap-0">
-          <VisuallyHidden>
-            <SheetTitle>Verificación de Crédito</SheetTitle>
-          </VisuallyHidden>
-          {selectedCheck && (
-            <CreditCheckDetail
-              creditCheck={selectedCheck}
-              onClose={() => setSelectedCheck(null)}
-            />
-          )}
-        </SheetContent>
-      </Sheet>
     </div>
   )
 }
