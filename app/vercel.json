@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/expire-leads",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/cron/reset-daily-counters",
