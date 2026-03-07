@@ -182,7 +182,7 @@ function PoolCard({ lead, onClaim, isClaiming }: PoolCardProps) {
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <span className="font-medium block truncate">{fullName}</span>
+            <span className="font-medium block truncate" title={fullName}>{fullName}</span>
             {lead.source && (
               <span className="text-xs text-muted-foreground block truncate">
                 {lead.source}

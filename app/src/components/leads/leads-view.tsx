@@ -115,7 +115,7 @@ export function LeadsView({ module = "comercial" }: LeadsViewProps) {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="start">
-              <ScrollArea className="h-[400px]">
+              <ScrollArea className="flex-1 min-h-0">
                 <div className="p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium">Filtros</h4>

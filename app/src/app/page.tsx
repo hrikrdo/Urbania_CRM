@@ -1,5 +1,2 @@
 import { redirect } from "next/navigation"
-
-export default function Home() {
-  redirect("/comercial")
-}
+export default function Home() { redirect("/dashboard") }

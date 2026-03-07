@@ -11,13 +11,21 @@ const pageTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/comercial": "Comercial",
   "/pool": "Pool de Leads",
-  "/citas": "Citas",
+  "/agenda": "Agenda",
+  "/marketing": "Marketing",
   "/tramites": "Trámites",
+  "/cierre": "Cierre",
   "/cobranza": "Cobranza",
+  "/postventa": "Post-Venta",
   "/proyectos": "Proyectos",
   "/equipo": "Equipo",
   "/reportes": "Reportes",
   "/configuracion": "Configuración",
+  "/configuracion/proyectos": "Proyectos — Config",
+  "/configuracion/usuarios": "Usuarios — Config",
+  "/configuracion/etapas": "Etapas — Config",
+  "/configuracion/notificaciones": "Notificaciones",
+  "/configuracion/apariencia": "Apariencia",
 }
 
 export function SiteHeader() {

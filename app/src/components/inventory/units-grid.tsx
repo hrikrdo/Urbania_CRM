@@ -157,7 +157,7 @@ export function UnitsGrid({ projectId, projectName }: UnitsGridProps) {
       <div className="flex flex-wrap gap-4">
         {(Object.entries(statusConfig) as [UnitStatus, typeof statusConfig.available][]).map(
           ([status, config]) => (
-            <button
+            <button type="button"
               key={status}
               onClick={() =>
                 setFilters((f) =>
@@ -345,7 +345,7 @@ function UnitCard({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
+          <button type="button"
             onClick={onClick}
             className={cn(
               "p-2 rounded-md border text-center transition-all cursor-pointer",

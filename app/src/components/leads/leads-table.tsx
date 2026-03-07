@@ -111,7 +111,7 @@ function EditableStatusCell({ lead }: { lead: LeadWithRelations }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-        <button className="focus:outline-none">
+        <button type="button" className="focus:outline-none">
           <Badge
             variant="outline"
             className="cursor-pointer hover:opacity-80 transition-opacity"
@@ -165,7 +165,7 @@ function EditableAssignedToCell({ lead }: { lead: LeadWithRelations }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-        <button className="focus:outline-none">
+        <button type="button" className="focus:outline-none">
           {user ? (
             <div className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity">
               <IconUser className="size-3 text-muted-foreground" />
@@ -232,7 +232,7 @@ function EditableProjectCell({ lead }: { lead: LeadWithRelations }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-        <button className="focus:outline-none">
+        <button type="button" className="focus:outline-none">
           {project ? (
             <Badge
               variant="secondary"

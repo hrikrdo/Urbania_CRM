@@ -154,7 +154,7 @@ export default function AparienciaPage() {
         <CardContent>
           <div className="flex flex-wrap gap-3">
             {accentColors.map((color) => (
-              <button
+              <button type="button"
                 key={color.value}
                 className={cn(
                   "flex items-center gap-2 rounded-lg border px-4 py-2 transition-colors hover:bg-muted/50",

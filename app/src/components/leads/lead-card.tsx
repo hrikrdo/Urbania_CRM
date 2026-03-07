@@ -116,7 +116,7 @@ export function LeadCard({ lead, isDragging }: LeadCardProps) {
               <Avatar className="size-6">
                 <AvatarFallback className="text-xs">{initials}</AvatarFallback>
               </Avatar>
-              <span className="font-medium text-sm truncate">{fullName}</span>
+              <span className="font-medium text-sm truncate" title={fullName}>{fullName}</span>
               <TempIcon
                 className={`size-4 shrink-0 ${
                   temperatureColors[lead.temperature as keyof typeof temperatureColors] || ""

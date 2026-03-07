@@ -82,7 +82,7 @@ function NotificationItem({
   const [iconColor, bgColor] = colorClass.split(" ")
 
   return (
-    <button
+    <button type="button"
       className={cn(
         "w-full text-left p-3 hover:bg-muted/50 transition-colors flex gap-3",
         !notification.read && "bg-primary/5"

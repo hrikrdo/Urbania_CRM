@@ -32,123 +32,60 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useCurrentUser } from "@/hooks/use-current-user"
 
-const data = {
-  user: {
-    name: "Usuario",
-    email: "usuario@urbania.com",
-    avatar: "/avatars/user.jpg",
-  },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconDashboard,
-    },
-    {
-      title: "Comercial",
-      url: "/comercial",
-      icon: IconLayoutKanban,
-    },
-    {
-      title: "Pool",
-      url: "/pool",
-      icon: IconPool,
-    },
-    {
-      title: "Citas",
-      url: "/agenda",
-      icon: IconCalendarEvent,
-    },
-    {
-      title: "Marketing",
-      url: "/marketing",
-      icon: IconSpeakerphone,
-    },
-    {
-      title: "Trámites",
-      url: "/tramites",
-      icon: IconFileDescription,
-    },
-    {
-      title: "Cierre",
-      url: "/cierre",
-      icon: IconTicket,
-    },
-    {
-      title: "Cobranza",
-      url: "/cobranza",
-      icon: IconCreditCard,
-    },
-    {
-      title: "Post-Venta",
-      url: "/postventa",
-      icon: IconHomeCheck,
-    },
-    {
-      title: "Proyectos",
-      url: "/proyectos",
-      icon: IconBuildingSkyscraper,
-    },
-    {
-      title: "Equipo",
-      url: "/equipo",
-      icon: IconUsers,
-    },
-    {
-      title: "Reportes",
-      url: "/reportes",
-      icon: IconChartBar,
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Notificaciones",
-      url: "/notificaciones",
-      icon: IconBell,
-    },
-    {
-      title: "Configuración",
-      url: "/configuracion",
-      icon: IconSettings,
-    },
-    {
-      title: "Ayuda",
-      url: "/ayuda",
-      icon: IconHelp,
-    },
-    {
-      title: "Buscar",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
-}
+const navMain = [
+  { title: "Dashboard", url: "/dashboard", icon: IconDashboard },
+  { title: "Comercial", url: "/comercial", icon: IconLayoutKanban },
+  { title: "Pool", url: "/pool", icon: IconPool },
+  { title: "Citas", url: "/agenda", icon: IconCalendarEvent },
+  { title: "Marketing", url: "/marketing", icon: IconSpeakerphone },
+  { title: "Trámites", url: "/tramites", icon: IconFileDescription },
+  { title: "Cierre", url: "/cierre", icon: IconTicket },
+  { title: "Cobranza", url: "/cobranza", icon: IconCreditCard },
+  { title: "Post-Venta", url: "/postventa", icon: IconHomeCheck },
+  { title: "Proyectos", url: "/proyectos", icon: IconBuildingSkyscraper },
+  { title: "Equipo", url: "/equipo", icon: IconUsers },
+  { title: "Reportes", url: "/reportes", icon: IconChartBar },
+]
+
+const navSecondary = [
+  { title: "Configuración", url: "/configuracion", icon: IconSettings },
+  { title: "Notificaciones", url: "/configuracion/notificaciones", icon: IconBell },
+  { title: "Ayuda", url: "#", icon: IconHelp },
+]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: currentUser } = useCurrentUser()
+
+  const user = {
+    name: currentUser
+      ? `${currentUser.first_name || ""} ${currentUser.last_name || ""}`.trim() || currentUser.email || "Usuario"
+      : "Usuario",
+    email: currentUser?.email || "—",
+    avatar: (currentUser as any)?.avatar_url || "",
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-2"
-            >
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <a href="/dashboard">
-                <IconBuildingSkyscraper className="!size-5" />
-                <span className="text-base font-semibold">Urbania CRM</span>
+                <IconBuildingSkyscraper className="size-5 text-primary" />
+                <span className="font-bold text-base">Urbania CRM</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   )

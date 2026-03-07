@@ -68,6 +68,7 @@ import { LeadCreditCheckSection } from "@/components/tramites"
 import { LeadReservationsSection } from "@/components/reservations/lead-reservations-section"
 import { LeadAppointmentsSection } from "@/components/agenda/lead-appointments-section"
 import { LeadAssignmentHistory } from "@/components/distribution"
+import { WhatsAppChatModal } from "@/components/leads/whatsapp-chat-modal"
 
 const temperatureConfig = {
   hot: { icon: IconFlame, color: "text-chart-1", label: "Caliente" },
@@ -97,6 +98,7 @@ export function LeadDetailPanel() {
 
   const [newNote, setNewNote] = useState("")
   const [activeTab, setActiveTab] = useState<LeadDetailTab>(defaultTab)
+  const [showWhatsAppChat, setShowWhatsAppChat] = useState(false)
 
   // Update active tab when defaultTab changes (from store)
   useEffect(() => {
@@ -117,7 +119,7 @@ export function LeadDetailPanel() {
       <Sheet open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-[1200px] p-0 flex flex-col gap-0"
+          className="w-full sm:max-w-[1200px] p-0 flex flex-col gap-0 overflow-x-hidden"
         >
           <div className="flex items-center justify-center h-full">
             <IconLoader2 className="size-8 animate-spin text-muted-foreground" />
@@ -257,10 +259,11 @@ export function LeadDetailPanel() {
   const scoreLabel = aiScore >= 70 ? "Alto interés" : aiScore >= 40 ? "Interés moderado" : "Bajo interés"
 
   return (
+    <>
     <Sheet open={isDetailOpen} onOpenChange={(open) => !open && closeDetail()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-[1200px] p-0 flex flex-col gap-0"
+        className="w-full sm:max-w-[1200px] p-0 flex flex-col gap-0 overflow-x-hidden"
       >
         {/* Header */}
         <header className="shrink-0 px-6 py-4 border-b flex items-center justify-between pr-16">
@@ -365,10 +368,10 @@ export function LeadDetailPanel() {
         </header>
 
         {/* Content - 2 Columns */}
-        <div className="flex-1 flex min-h-0">
+        <div className="flex-1 flex min-h-0 overflow-hidden">
           {/* Left Sidebar */}
           <aside className="w-[320px] border-r flex flex-col shrink-0 min-h-0">
-            <ScrollArea className="flex-1 min-h-0">
+            <ScrollArea className="flex-1 min-h-0 overflow-x-hidden">
               <div className="p-4 space-y-6">
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2">
@@ -377,14 +380,14 @@ export function LeadDetailPanel() {
                       <IconPhone className="size-4" />
                     </a>
                   </Button>
-                  <Button variant="outline" size="icon" asChild title="WhatsApp">
-                    <a
-                      href={`https://wa.me/${selectedLead.phone?.replace(/\D/g, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <IconBrandWhatsapp className="size-4" />
-                    </a>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    title="WhatsApp"
+                    onClick={() => setShowWhatsAppChat(true)}
+                    className="text-green-600 hover:text-green-700 hover:border-green-600"
+                  >
+                    <IconBrandWhatsapp className="size-4" />
                   </Button>
                   <Button variant="outline" size="icon" asChild title="Email">
                     <a href={`mailto:${selectedLead.email}`}>
@@ -586,8 +589,8 @@ export function LeadDetailPanel() {
           </aside>
 
           {/* Main Content Area */}
-          <main className="flex-1 flex flex-col min-h-0">
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as LeadDetailTab)} className="flex-1 flex flex-col min-h-0">
+          <main className="flex-1 flex flex-col min-h-0 overflow-x-hidden">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as LeadDetailTab)} className="flex-1 flex flex-col min-h-0 overflow-hidden">
               <div className="shrink-0 pt-4 pb-2 px-6 border-b">
                 <TabsList className="w-full justify-start rounded-none bg-transparent h-auto gap-1 overflow-x-auto">
                   <TabsTrigger value="activity" className="text-sm data-[state=active]:bg-muted px-4 py-2 rounded-md shrink-0">
@@ -620,12 +623,12 @@ export function LeadDetailPanel() {
                 </TabsList>
               </div>
 
-              <ScrollArea className="flex-1 min-h-0">
+              <ScrollArea className="flex-1 min-h-0 overflow-x-hidden">
                 {/* Activity Tab */}
-                <TabsContent value="activity" className="m-0 p-4 space-y-6">
+                <TabsContent value="activity" className="m-0 p-4 space-y-6 overflow-hidden">
                   {/* AI Summary Card */}
-                  <Card className="border-chart-1/20 bg-gradient-to-r from-chart-1/5 to-transparent">
-                    <CardContent className="p-4 space-y-4">
+                  <Card className="border-chart-1/20 bg-gradient-to-r from-chart-1/5 to-transparent overflow-hidden">
+                    <CardContent className="p-4 space-y-4 max-w-full break-words">
                       {/* Header with score */}
                       <div className="flex items-start gap-4">
                         <div className="size-12 rounded-xl bg-chart-1/10 flex items-center justify-center shrink-0">
@@ -779,7 +782,7 @@ export function LeadDetailPanel() {
                 </TabsContent>
 
                 {/* Notes Tab */}
-                <TabsContent value="notes" className="m-0 p-4 space-y-6">
+                <TabsContent value="notes" className="m-0 p-4 space-y-6 overflow-hidden">
                   <div className="space-y-4">
                     <Textarea
                       placeholder="Escribe una nota sobre este lead..."
@@ -816,12 +819,12 @@ export function LeadDetailPanel() {
                 </TabsContent>
 
                 {/* Tasks Tab */}
-                <TabsContent value="tasks" className="m-0 p-4">
+                <TabsContent value="tasks" className="m-0 p-4 overflow-hidden">
                   <TasksList leadId={selectedLead.id} />
                 </TabsContent>
 
                 {/* Files Tab */}
-                <TabsContent value="files" className="m-0 p-4">
+                <TabsContent value="files" className="m-0 p-4 overflow-hidden">
                   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                     <IconFolder className="size-10 mb-3 opacity-40" />
                     <p className="text-sm font-medium">Sin archivos</p>
@@ -830,12 +833,12 @@ export function LeadDetailPanel() {
                 </TabsContent>
 
                 {/* Appointments Tab */}
-                <TabsContent value="appointments" className="m-0 p-4">
+                <TabsContent value="appointments" className="m-0 p-4 overflow-hidden">
                   <LeadAppointmentsSection leadId={selectedLead.id} />
                 </TabsContent>
 
                 {/* Process Tab */}
-                <TabsContent value="process" className="m-0 p-4">
+                <TabsContent value="process" className="m-0 p-4 overflow-hidden">
                   <LeadCreditCheckSection
                     leadId={selectedLead.id}
                     cedula={selectedLead.cedula}
@@ -843,12 +846,12 @@ export function LeadDetailPanel() {
                 </TabsContent>
 
                 {/* Reservation Tab */}
-                <TabsContent value="reservation" className="m-0 p-4">
+                <TabsContent value="reservation" className="m-0 p-4 overflow-hidden">
                   <LeadReservationsSection leadId={selectedLead.id} />
                 </TabsContent>
 
                 {/* Returns Tab */}
-                <TabsContent value="returns" className="m-0 p-4">
+                <TabsContent value="returns" className="m-0 p-4 overflow-hidden">
                   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                     <IconRefresh className="size-10 mb-3 opacity-40" />
                     <p className="text-sm font-medium">Sin devoluciones</p>
@@ -857,7 +860,7 @@ export function LeadDetailPanel() {
                 </TabsContent>
 
                 {/* Assignments Tab */}
-                <TabsContent value="assignments" className="m-0 p-4">
+                <TabsContent value="assignments" className="m-0 p-4 overflow-hidden">
                   <LeadAssignmentHistory leadId={selectedLead.id} />
                 </TabsContent>
               </ScrollArea>
@@ -866,5 +869,16 @@ export function LeadDetailPanel() {
         </div>
       </SheetContent>
     </Sheet>
+
+    {selectedLead && (
+      <WhatsAppChatModal
+        open={showWhatsAppChat}
+        onClose={() => setShowWhatsAppChat(false)}
+        leadId={selectedLead.id}
+        leadName={`${selectedLead.first_name} ${selectedLead.last_name || ""}`.trim()}
+        phone={selectedLead.phone || ""}
+      />
+    )}
+    </>
   )
 }
