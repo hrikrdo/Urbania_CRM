@@ -290,7 +290,7 @@ export function UserProjectAssignments({
 
       {/* Add Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Agregar Asignación</DialogTitle>
             <DialogDescription>
@@ -369,7 +369,7 @@ export function UserProjectAssignments({
 
       {/* Edit Dialog */}
       <Dialog open={!!editingAssignment} onOpenChange={() => setEditingAssignment(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Editar Configuración</DialogTitle>
             <DialogDescription>

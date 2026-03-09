@@ -224,7 +224,7 @@ export function UsersManagement() {
 
       {/* Add User Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Nuevo Usuario</DialogTitle>
             <DialogDescription>

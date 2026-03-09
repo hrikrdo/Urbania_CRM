@@ -213,7 +213,7 @@ export function StagesConfig() {
 
       {/* Add Stage Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Nueva Etapa</DialogTitle>
             <DialogDescription>
@@ -263,7 +263,7 @@ export function StagesConfig() {
 
       {/* Edit Stage Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Editar Etapa</DialogTitle>
             <DialogDescription>

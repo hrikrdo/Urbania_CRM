@@ -151,7 +151,7 @@ export function ProjectsList() {
               Nuevo Proyecto
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-lg">
             <ProjectForm
               onClose={() => setIsCreateOpen(false)}
               onSuccess={() => {
@@ -193,7 +193,7 @@ export function ProjectsList() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editingProject} onOpenChange={() => setEditingProject(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
           {editingProject && (
             <ProjectForm
               project={editingProject}
@@ -209,7 +209,7 @@ export function ProjectsList() {
 
       {/* Delete Confirmation */}
       <Dialog open={!!deleteProject} onOpenChange={() => setDeleteProject(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Eliminar Proyecto</DialogTitle>
             <DialogDescription>

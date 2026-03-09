@@ -271,7 +271,7 @@ export function ProjectsConfig() {
 
       {/* Add Project Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Nuevo Proyecto</DialogTitle>
             <DialogDescription>
@@ -343,7 +343,7 @@ export function ProjectsConfig() {
 
       {/* Add Unit Type Dialog */}
       <Dialog open={showUnitTypeDialog} onOpenChange={setShowUnitTypeDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Nuevo Tipo de Unidad</DialogTitle>
             <DialogDescription>

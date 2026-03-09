@@ -240,7 +240,7 @@ export function UnitsGrid({ projectId, projectName }: UnitsGridProps) {
               Agregar Unidad
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-lg">
             <UnitForm
               projectId={projectId}
               unitTypes={unitTypes || []}
@@ -312,7 +312,7 @@ export function UnitsGrid({ projectId, projectName }: UnitsGridProps) {
 
       {/* Edit Unit Dialog */}
       <Dialog open={!!editingUnit} onOpenChange={() => setEditingUnit(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
           {editingUnit && (
             <UnitForm
               projectId={projectId}
@@ -525,7 +525,7 @@ function UnitDetail({
 
       {/* Delete confirmation */}
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Eliminar Unidad</DialogTitle>
             <DialogDescription>
