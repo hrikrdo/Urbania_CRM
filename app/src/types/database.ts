@@ -174,6 +174,7 @@ export type Database = {
           utm_campaign: string | null
           utm_content: string | null
           call_attempts: number
+          bot_paused: boolean
           chat_attempts: number
           last_contact_at: string | null
           last_response_at: string | null
@@ -216,6 +217,7 @@ export type Database = {
           utm_campaign?: string | null
           utm_content?: string | null
           call_attempts?: number
+          bot_paused?: boolean
           chat_attempts?: number
           last_contact_at?: string | null
           last_response_at?: string | null
@@ -258,6 +260,7 @@ export type Database = {
           utm_campaign?: string | null
           utm_content?: string | null
           call_attempts?: number
+          bot_paused?: boolean
           chat_attempts?: number
           last_contact_at?: string | null
           last_response_at?: string | null

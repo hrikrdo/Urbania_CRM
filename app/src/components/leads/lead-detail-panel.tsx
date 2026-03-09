@@ -99,8 +99,15 @@ export function LeadDetailPanel() {
   const [newNote, setNewNote] = useState("")
   const [activities, setActivities] = useState<{id:string,type:string,title:string,description:string,created_at:string}[]>([])
   const [loadingActivities, setLoadingActivities] = useState(false)
+  const [botPaused, setBotPaused] = useState<boolean>(selectedLead?.bot_paused ?? false)
+  const [togglingBot, setTogglingBot] = useState(false)
   const [activeTab, setActiveTab] = useState<LeadDetailTab>(defaultTab)
   const [showWhatsAppChat, setShowWhatsAppChat] = useState(false)
+
+  // Sync bot_paused cuando cambia el lead
+  useEffect(() => {
+    setBotPaused(selectedLead?.bot_paused ?? false)
+  }, [selectedLead?.id, selectedLead?.bot_paused])
 
   // Cargar actividades reales de la DB (antes de cualquier early return)
   useEffect(() => {
@@ -273,6 +280,26 @@ export function LeadDetailPanel() {
   }
 
   const aiScore = calculateAIScore()
+
+  const toggleBot = async () => {
+    if (!selectedLead) return
+    setTogglingBot(true)
+    const newPaused = !botPaused
+    try {
+      await fetch("/api/whatsapp/pause-bot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lead_id: selectedLead.id, paused: newPaused }),
+      })
+      setBotPaused(newPaused)
+      toast.success(newPaused ? "🤝 Bot pausado — modo humano activado" : "🤖 Bot reactivado")
+      // Recargar actividades
+      fetch(`/api/leads/activities?lead_id=${selectedLead.id}`)
+        .then(r => r.json()).then(d => setActivities(d.activities || []))
+    } catch {
+      toast.error("Error al cambiar estado del bot")
+    } finally { setTogglingBot(false) }
+  }
   const scoreColor = aiScore >= 70 ? "text-chart-2" : aiScore >= 40 ? "text-chart-4" : "text-chart-1"
   const scoreBgColor = aiScore >= 70 ? "bg-chart-2" : aiScore >= 40 ? "bg-chart-4" : "bg-chart-1"
   const scoreLabel = aiScore >= 70 ? "Alto interés" : aiScore >= 40 ? "Interés moderado" : "Bajo interés"
@@ -415,6 +442,22 @@ export function LeadDetailPanel() {
                   </Button>
                   <Button variant="outline" size="icon" title="Agendar cita">
                     <IconCalendarEvent className="size-4" />
+                  </Button>
+                  <Button
+                    variant={botPaused ? "default" : "outline"}
+                    size="sm"
+                    onClick={toggleBot}
+                    disabled={togglingBot}
+                    className={botPaused
+                      ? "bg-amber-500 hover:bg-amber-600 text-white border-amber-500 gap-1.5"
+                      : "gap-1.5 text-muted-foreground"}
+                    title={botPaused ? "El bot está pausado — tú estás atendiendo" : "Bot activo — click para atender manualmente"}
+                  >
+                    {botPaused ? (
+                      <><IconUser className="size-4" /><span className="text-xs font-medium">Humano</span></>
+                    ) : (
+                      <><IconSparkles className="size-4" /><span className="text-xs font-medium">Bot activo</span></>
+                    )}
                   </Button>
                 </div>
 
