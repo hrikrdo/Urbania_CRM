@@ -755,10 +755,7 @@ export function LeadDetailPanel() {
                           </div>
                           <p className="text-sm font-semibold">
                             {selectedLead.last_contact_at
-                              ? formatDistanceToNow(new Date(selectedLead.last_contact_at), {
-                                  addSuffix: false,
-                                  locale: es,
-                                })
+                              ? format(new Date(selectedLead.last_contact_at), "dd MMM · HH:mm", { locale: es })
                               : "-"}
                           </p>
                           <p className="text-xs text-muted-foreground">Últ. contacto</p>
@@ -769,10 +766,7 @@ export function LeadDetailPanel() {
                           </div>
                           <p className="text-sm font-semibold">
                             {selectedLead.last_response_at
-                              ? formatDistanceToNow(new Date(selectedLead.last_response_at), {
-                                  addSuffix: false,
-                                  locale: es,
-                                })
+                              ? format(new Date(selectedLead.last_response_at), "dd MMM · HH:mm", { locale: es })
                               : "-"}
                           </p>
                           <p className="text-xs text-muted-foreground">Últ. respuesta</p>
