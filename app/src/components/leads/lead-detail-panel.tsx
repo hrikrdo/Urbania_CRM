@@ -771,7 +771,7 @@ export function LeadDetailPanel() {
                     {!loadingActivities && activities.map((act, idx) => {
                       const isWA = act.type === "whatsapp_received" || act.type === "whatsapp_sent"
                       const isSystem = act.type === "system_notification" || act.type === "status_changed"
-                      const Icon = isWA ? IconBrandWhatsapp : isSystem ? IconActivity : IconUser
+                      const Icon = isWA ? IconBrandWhatsapp : isSystem ? IconHistory : IconUser
                       const iconBg = isWA ? "bg-green-100" : isSystem ? "bg-blue-100" : "bg-muted"
                       const iconColor = isWA ? "text-green-600" : isSystem ? "text-blue-600" : "text-muted-foreground"
                       const isLast = idx === activities.length - 1
