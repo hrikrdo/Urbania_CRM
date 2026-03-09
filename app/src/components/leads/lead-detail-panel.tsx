@@ -102,6 +102,17 @@ export function LeadDetailPanel() {
   const [activeTab, setActiveTab] = useState<LeadDetailTab>(defaultTab)
   const [showWhatsAppChat, setShowWhatsAppChat] = useState(false)
 
+  // Cargar actividades reales de la DB (antes de cualquier early return)
+  useEffect(() => {
+    if (!selectedLead?.id) return
+    setLoadingActivities(true)
+    fetch(`/api/leads/activities?lead_id=${selectedLead.id}`)
+      .then(r => r.json())
+      .then(d => setActivities(d.activities || []))
+      .catch(() => setActivities([]))
+      .finally(() => setLoadingActivities(false))
+  }, [selectedLead?.id])
+
   // Update active tab when defaultTab changes (from store)
   useEffect(() => {
     setActiveTab(defaultTab)
@@ -260,17 +271,6 @@ export function LeadDetailPanel() {
     }
     return "Lead reciente ingresado por WhatsApp. Iniciar secuencia de seguimiento según protocolo."
   }
-
-  // Cargar actividades reales de la DB
-  useEffect(() => {
-    if (!selectedLead?.id) return
-    setLoadingActivities(true)
-    fetch(`/api/leads/activities?lead_id=${selectedLead.id}`)
-      .then(r => r.json())
-      .then(d => setActivities(d.activities || []))
-      .catch(() => setActivities([]))
-      .finally(() => setLoadingActivities(false))
-  }, [selectedLead?.id])
 
   const aiScore = calculateAIScore()
   const scoreColor = aiScore >= 70 ? "text-chart-2" : aiScore >= 40 ? "text-chart-4" : "text-chart-1"
