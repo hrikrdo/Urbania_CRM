@@ -82,6 +82,7 @@ export async function POST(req: NextRequest) {
           budget_min = COALESCE($6, budget_min),
           status_id = COALESCE($7, status_id),
           temperature = COALESCE($8, temperature),
+          last_contact_at = NOW(),
           last_response_at = NOW(),
           chat_attempts = chat_attempts + 1,
           notes = COALESCE($9, notes),
@@ -119,7 +120,7 @@ export async function POST(req: NextRequest) {
         INSERT INTO leads (
           first_name, last_name, phone, email, cedula, source,
           status_id, project_id, budget_min,
-          temperature, notes, last_response_at, chat_attempts
+          temperature, notes, last_contact_at, last_response_at, chat_attempts
         ) VALUES ($1,$2,$3,$4,$5,'whatsapp_bot',$6,$7,$8,$9,$10,NOW(),1)
         RETURNING id
       `, [

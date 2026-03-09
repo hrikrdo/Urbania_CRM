@@ -427,8 +427,7 @@ export function LeadDetailPanel() {
                     </span>
                   </div>
                   <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <IconUser className="size-4 text-muted-foreground mt-1 shrink-0" />
+                    <div>
                       <div className="flex-1">
                         <p className="text-xs text-muted-foreground">Nombre</p>
                         <Input
@@ -444,8 +443,7 @@ export function LeadDetailPanel() {
                         />
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <IconUser className="size-4 text-muted-foreground mt-1 shrink-0 opacity-0" />
+                    <div>
                       <div className="flex-1">
                         <p className="text-xs text-muted-foreground">Apellido</p>
                         <Input
@@ -461,8 +459,7 @@ export function LeadDetailPanel() {
                         />
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <IconMail className="size-4 text-muted-foreground mt-1 shrink-0" />
+                    <div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs text-muted-foreground">Email</p>
                         <Input
@@ -480,8 +477,7 @@ export function LeadDetailPanel() {
                         />
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <IconPhone className="size-4 text-muted-foreground mt-1 shrink-0" />
+                    <div>
                       <div className="flex-1">
                         <p className="text-xs text-muted-foreground">Teléfono</p>
                         <Input
@@ -498,8 +494,7 @@ export function LeadDetailPanel() {
                         />
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <IconId className="size-4 text-muted-foreground mt-1 shrink-0" />
+                    <div>
                       <div className="flex-1">
                         <p className="text-xs text-muted-foreground">Cédula</p>
                         <Input
@@ -519,8 +514,7 @@ export function LeadDetailPanel() {
                         />
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <IconMapPin className="size-4 text-muted-foreground mt-1 shrink-0" />
+                    <div>
                       <div className="flex-1">
                         <p className="text-xs text-muted-foreground">Dirección</p>
                         <Input
@@ -792,44 +786,6 @@ export function LeadDetailPanel() {
                     <h4 className="text-sm font-medium mb-4">Actividad Reciente</h4>
                     <div className="space-y-4">
                       {/* Example activity items - these will be dynamic later */}
-                      <div className="flex gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className="size-8 rounded-full bg-chart-2/10 flex items-center justify-center">
-                            <IconBrandWhatsapp className="size-4 text-chart-2" />
-                          </div>
-                          <div className="w-px flex-1 bg-border mt-2" />
-                        </div>
-                        <div className="flex-1 pb-4">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium">Mensaje de WhatsApp</span>
-                            <span className="text-xs text-muted-foreground">Hace 2 horas</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Cliente: "Hola, me interesa el departamento de 2 habitaciones. ¿Tienen disponibilidad para una visita esta semana?"
-                          </p>
-                          <Badge variant="outline" className="mt-2 text-xs">Respuesta del cliente</Badge>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className="size-8 rounded-full bg-chart-1/10 flex items-center justify-center">
-                            <IconPhone className="size-4 text-chart-1" />
-                          </div>
-                          <div className="w-px flex-1 bg-border mt-2" />
-                        </div>
-                        <div className="flex-1 pb-4">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium">Llamada realizada</span>
-                            <span className="text-xs text-muted-foreground">Hace 1 día</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Duración: 3:45 min. Se explicaron las opciones de financiamiento y se acordó enviar información por correo.
-                          </p>
-                          <Badge variant="secondary" className="mt-2 text-xs">Llamada contestada</Badge>
-                        </div>
-                      </div>
-
                     </div>
                     {/* Actividades reales de la DB */}
                     {loadingActivities && <p className="text-sm text-muted-foreground px-1">Cargando actividades...</p>}
