@@ -293,7 +293,30 @@ export function LeadDetailPanel() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-xl font-semibold">{fullName}</h2>
+              <div className="flex gap-1 items-center -ml-1">
+                <input
+                  className="h-8 text-xl font-semibold bg-transparent border border-transparent hover:border-input focus:border-input focus:outline-none rounded px-1 w-28"
+                  defaultValue={selectedLead.first_name || ""}
+                  placeholder="Nombre"
+                  onBlur={(e) => {
+                    if (e.target.value !== selectedLead.first_name) {
+                      updateLead.mutate({ id: selectedLead.id, updates: { first_name: e.target.value } })
+                      toast.success("Nombre actualizado")
+                    }
+                  }}
+                />
+                <input
+                  className="h-8 text-xl font-semibold bg-transparent border border-transparent hover:border-input focus:border-input focus:outline-none rounded px-1 w-32"
+                  defaultValue={selectedLead.last_name || ""}
+                  placeholder="Apellido"
+                  onBlur={(e) => {
+                    if (e.target.value !== selectedLead.last_name) {
+                      updateLead.mutate({ id: selectedLead.id, updates: { last_name: e.target.value || null } })
+                      toast.success("Apellido actualizado")
+                    }
+                  }}
+                />
+              </div>
               <div className="flex items-center gap-2 mt-1">
                 {selectedLead.project && (
                   <Badge variant="secondary" className="text-xs">
