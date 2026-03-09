@@ -293,30 +293,7 @@ export function LeadDetailPanel() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <div className="flex gap-1 items-center -ml-1">
-                <input
-                  className="h-8 text-xl font-semibold bg-transparent border border-transparent hover:border-input focus:border-input focus:outline-none rounded px-1 w-28"
-                  defaultValue={selectedLead.first_name || ""}
-                  placeholder="Nombre"
-                  onBlur={(e) => {
-                    if (e.target.value !== selectedLead.first_name) {
-                      updateLead.mutate({ id: selectedLead.id, updates: { first_name: e.target.value } })
-                      toast.success("Nombre actualizado")
-                    }
-                  }}
-                />
-                <input
-                  className="h-8 text-xl font-semibold bg-transparent border border-transparent hover:border-input focus:border-input focus:outline-none rounded px-1 w-32"
-                  defaultValue={selectedLead.last_name || ""}
-                  placeholder="Apellido"
-                  onBlur={(e) => {
-                    if (e.target.value !== selectedLead.last_name) {
-                      updateLead.mutate({ id: selectedLead.id, updates: { last_name: e.target.value || null } })
-                      toast.success("Apellido actualizado")
-                    }
-                  }}
-                />
-              </div>
+              <h2 className="text-xl font-semibold">{fullName}</h2>
               <div className="flex items-center gap-2 mt-1">
                 {selectedLead.project && (
                   <Badge variant="secondary" className="text-xs">
@@ -451,11 +428,45 @@ export function LeadDetailPanel() {
                   </div>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
+                      <IconUser className="size-4 text-muted-foreground mt-1 shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Nombre</p>
+                        <Input
+                          className="h-8 text-sm"
+                          defaultValue={selectedLead.first_name || ""}
+                          placeholder="Nombre"
+                          onBlur={(e) => {
+                            if (e.target.value !== selectedLead.first_name) {
+                              updateLead.mutate({ id: selectedLead.id, updates: { first_name: e.target.value } })
+                              toast.success("Nombre actualizado")
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <IconUser className="size-4 text-muted-foreground mt-1 shrink-0 opacity-0" />
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Apellido</p>
+                        <Input
+                          className="h-8 text-sm"
+                          defaultValue={selectedLead.last_name || ""}
+                          placeholder="Apellido"
+                          onBlur={(e) => {
+                            if (e.target.value !== selectedLead.last_name) {
+                              updateLead.mutate({ id: selectedLead.id, updates: { last_name: e.target.value || null } })
+                              toast.success("Apellido actualizado")
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
                       <IconMail className="size-4 text-muted-foreground mt-1 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="text-xs text-muted-foreground">Email</p>
                         <Input
-                          className="h-7 text-sm px-1 border-transparent hover:border-input focus:border-input"
+                          className="h-8 text-sm"
                           defaultValue={selectedLead.email || ""}
                           placeholder="correo@ejemplo.com"
                           type="email"
@@ -474,7 +485,7 @@ export function LeadDetailPanel() {
                       <div className="flex-1">
                         <p className="text-xs text-muted-foreground">Teléfono</p>
                         <Input
-                          className="h-7 text-sm px-1 border-transparent hover:border-input focus:border-input"
+                          className="h-8 text-sm"
                           defaultValue={selectedLead.phone || ""}
                           placeholder="+507 0000-0000"
                           onBlur={(e) => {
@@ -513,7 +524,7 @@ export function LeadDetailPanel() {
                       <div className="flex-1">
                         <p className="text-xs text-muted-foreground">Dirección</p>
                         <Input
-                          className="h-7 text-sm px-1 border-transparent hover:border-input focus:border-input"
+                          className="h-8 text-sm"
                           defaultValue={(selectedLead as unknown as Record<string,string>).address || ""}
                           placeholder="Dirección del cliente"
                           onBlur={(e) => {
