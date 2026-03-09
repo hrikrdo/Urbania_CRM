@@ -429,16 +429,39 @@ export function LeadDetailPanel() {
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
                       <IconMail className="size-4 text-muted-foreground mt-1 shrink-0" />
-                      <div className="min-w-0">
+                      <div className="flex-1 min-w-0">
                         <p className="text-xs text-muted-foreground">Email</p>
-                        <p className="text-sm font-medium truncate">{selectedLead.email || "-"}</p>
+                        <Input
+                          className="h-7 text-sm px-1 border-transparent hover:border-input focus:border-input"
+                          defaultValue={selectedLead.email || ""}
+                          placeholder="correo@ejemplo.com"
+                          type="email"
+                          onBlur={(e) => {
+                            const v = e.target.value || null
+                            if (v !== selectedLead.email) {
+                              updateLead.mutate({ id: selectedLead.id, updates: { email: v } })
+                              toast.success("Email actualizado")
+                            }
+                          }}
+                        />
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <IconPhone className="size-4 text-muted-foreground mt-1 shrink-0" />
-                      <div>
+                      <div className="flex-1">
                         <p className="text-xs text-muted-foreground">Teléfono</p>
-                        <p className="text-sm font-medium">{selectedLead.phone || "-"}</p>
+                        <Input
+                          className="h-7 text-sm px-1 border-transparent hover:border-input focus:border-input"
+                          defaultValue={selectedLead.phone || ""}
+                          placeholder="+507 0000-0000"
+                          onBlur={(e) => {
+                            const v = e.target.value || null
+                            if (v !== selectedLead.phone) {
+                              updateLead.mutate({ id: selectedLead.id, updates: { phone: v } })
+                              toast.success("Teléfono actualizado")
+                            }
+                          }}
+                        />
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -464,9 +487,19 @@ export function LeadDetailPanel() {
                     </div>
                     <div className="flex items-start gap-3">
                       <IconMapPin className="size-4 text-muted-foreground mt-1 shrink-0" />
-                      <div>
+                      <div className="flex-1">
                         <p className="text-xs text-muted-foreground">Dirección</p>
-                        <p className="text-sm font-medium">Sin dirección</p>
+                        <Input
+                          className="h-7 text-sm px-1 border-transparent hover:border-input focus:border-input"
+                          defaultValue={(selectedLead as unknown as Record<string,string>).address || ""}
+                          placeholder="Dirección del cliente"
+                          onBlur={(e) => {
+                            if (e.target.value) {
+                              updateLead.mutate({ id: selectedLead.id, updates: { notes: (selectedLead.notes || "") + " | Dir: " + e.target.value } })
+                              toast.success("Dirección guardada")
+                            }
+                          }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -487,14 +520,15 @@ export function LeadDetailPanel() {
                       <Label className="text-xs text-muted-foreground">Presupuesto</Label>
                       <Input
                         type="number"
-                        placeholder="0"
-                        defaultValue={selectedLead.budget_max || ""}
+                        placeholder="Ingreso mensual ($)"
+                        defaultValue={selectedLead.budget_min || ""}
                         onBlur={(e) => {
                           const value = e.target.value ? Number(e.target.value) : null
                           updateLead.mutate({
                             id: selectedLead.id,
-                            updates: { budget_max: value },
+                            updates: { budget_min: value },
                           })
+                          toast.success("Presupuesto actualizado")
                         }}
                       />
                     </div>
