@@ -97,6 +97,8 @@ export function LeadDetailPanel() {
   const { data: loadedLead, isLoading: isLoadingLead } = useLead(pendingLeadId || "")
 
   const [newNote, setNewNote] = useState("")
+  const [activities, setActivities] = useState<{id:string,type:string,title:string,description:string,created_at:string}[]>([])
+  const [loadingActivities, setLoadingActivities] = useState(false)
   const [activeTab, setActiveTab] = useState<LeadDetailTab>(defaultTab)
   const [showWhatsAppChat, setShowWhatsAppChat] = useState(false)
 
@@ -258,6 +260,17 @@ export function LeadDetailPanel() {
     }
     return "Lead reciente ingresado por WhatsApp. Iniciar secuencia de seguimiento según protocolo."
   }
+
+  // Cargar actividades reales de la DB
+  useEffect(() => {
+    if (!selectedLead?.id) return
+    setLoadingActivities(true)
+    fetch(`/api/leads/activities?lead_id=${selectedLead.id}`)
+      .then(r => r.json())
+      .then(d => setActivities(d.activities || []))
+      .catch(() => setActivities([]))
+      .finally(() => setLoadingActivities(false))
+  }, [selectedLead?.id])
 
   const aiScore = calculateAIScore()
   const scoreColor = aiScore >= 70 ? "text-chart-2" : aiScore >= 40 ? "text-chart-4" : "text-chart-1"
@@ -749,41 +762,47 @@ export function LeadDetailPanel() {
                         </div>
                       </div>
 
-                      <div className="flex gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className="size-8 rounded-full bg-chart-3/10 flex items-center justify-center">
-                            <IconMail className="size-4 text-chart-3" />
-                          </div>
-                          <div className="w-px flex-1 bg-border mt-2" />
-                        </div>
-                        <div className="flex-1 pb-4">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium">Email enviado</span>
-                            <span className="text-xs text-muted-foreground">Hace 2 días</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Asunto: "Información sobre Torre Central - Departamentos disponibles"
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className="size-8 rounded-full bg-muted flex items-center justify-center">
-                            <IconUser className="size-4 text-muted-foreground" />
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium">Lead creado</span>
-                            <span className="text-xs text-muted-foreground">Hace 3 días</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            Lead ingresado desde campaña de Facebook Ads - "Promo Enero 2025"
-                          </p>
-                        </div>
-                      </div>
                     </div>
+                    {/* Actividades reales de la DB */}
+                    {loadingActivities && <p className="text-sm text-muted-foreground px-1">Cargando actividades...</p>}
+                    {!loadingActivities && activities.length === 0 && (
+                      <p className="text-sm text-muted-foreground px-1">No hay actividades registradas aún.</p>
+                    )}
+                    {!loadingActivities && activities.map((act, idx) => {
+                      const isWA = act.type === "whatsapp_received" || act.type === "whatsapp_sent"
+                      const isSystem = act.type === "system_notification" || act.type === "status_changed"
+                      const Icon = isWA ? IconBrandWhatsapp : isSystem ? IconActivity : IconUser
+                      const iconBg = isWA ? "bg-green-100" : isSystem ? "bg-blue-100" : "bg-muted"
+                      const iconColor = isWA ? "text-green-600" : isSystem ? "text-blue-600" : "text-muted-foreground"
+                      const isLast = idx === activities.length - 1
+                      const timeAgo = (() => {
+                        const diff = Date.now() - new Date(act.created_at).getTime()
+                        const h = Math.floor(diff/3600000)
+                        const d = Math.floor(diff/86400000)
+                        if (h < 1) return "Hace un momento"
+                        if (h < 24) return `Hace ${h}h`
+                        return `Hace ${d} día${d>1?"s":""}`
+                      })()
+                      return (
+                        <div key={act.id} className="flex gap-3">
+                          <div className="flex flex-col items-center">
+                            <div className={`size-8 rounded-full ${iconBg} flex items-center justify-center shrink-0`}>
+                              <Icon className={`size-4 ${iconColor}`} />
+                            </div>
+                            {!isLast && <div className="w-px flex-1 bg-border mt-2" />}
+                          </div>
+                          <div className={`flex-1 ${!isLast ? "pb-4" : ""}`}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium">{act.title}</span>
+                              <span className="text-xs text-muted-foreground">{timeAgo}</span>
+                            </div>
+                            {act.description && (
+                              <p className="text-sm text-muted-foreground line-clamp-3">{act.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </TabsContent>
 
