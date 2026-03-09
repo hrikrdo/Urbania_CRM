@@ -195,6 +195,9 @@ export function LeadDetailPanel() {
   const calculateAIScore = () => {
     let score = 20 // Base score
 
+    // Cédula verificada = señal más fuerte de interés real
+    if (selectedLead.cedula) score += 50
+
     // Temperature contributes significantly
     if (selectedLead.temperature === "hot") score += 25
     else if (selectedLead.temperature === "warm") score += 15
@@ -231,26 +234,29 @@ export function LeadDetailPanel() {
 
   // Generate AI summary based on lead data
   const generateAISummary = () => {
-    const totalAttempts = (selectedLead.call_attempts || 0) + (selectedLead.chat_attempts || 0)
-    const hasResponse = !!selectedLead.last_response_at
+    // Usar el resumen generado por IA si está guardado en notes
+    if (selectedLead.notes && selectedLead.notes.length > 30 && !selectedLead.notes.startsWith("Ingreso familiar") && !selectedLead.notes.startsWith("Chat Chatwoot")) {
+      return selectedLead.notes
+    }
+
+    // Fallback basado en datos disponibles
+    const hasCedula = !!selectedLead.cedula
+    const hasEmail = !!selectedLead.email
     const temp = selectedLead.temperature
 
-    if (hasResponse && temp === "hot") {
-      return "Lead con alto nivel de engagement. Ha respondido a los intentos de contacto y muestra interés activo. Recomendamos agendar cita a la brevedad."
+    if (hasCedula) {
+      return `Lead con alto interés confirmado — cédula verificada. ${selectedLead.project?.name ? `Interesado en ${selectedLead.project.name}.` : ""} ${selectedLead.budget_min ? `Ingreso declarado: $${selectedLead.budget_min}/mes.` : ""} Iniciar proceso de precalificación bancaria.`
     }
-    if (hasResponse && temp === "warm") {
-      return "Lead con interés moderado. Ha tenido comunicación y muestra potencial. Continuar seguimiento con información relevante del proyecto."
+    if (hasEmail && temp === "warm") {
+      return `Lead interesado que compartió correo electrónico. ${selectedLead.project?.name ? `Proyecto de interés: ${selectedLead.project.name}.` : ""} Continuar seguimiento para obtener cédula e iniciar proceso.`
     }
-    if (hasResponse && temp === "cold") {
-      return "Lead con baja prioridad actual pero ha respondido. Mantener en nurturing con contenido de valor."
+    if (temp === "hot") {
+      return "Lead con alto nivel de engagement activo. Recomendamos contacto inmediato para agendar visita al proyecto."
     }
-    if (!hasResponse && totalAttempts > 5) {
-      return "Múltiples intentos de contacto sin respuesta. Considerar cambiar estrategia de comunicación o reasignar prioridad."
+    if (temp === "warm") {
+      return "Lead con interés moderado. Continuar seguimiento con información del proyecto y requisitos de aplicación."
     }
-    if (!hasResponse && totalAttempts > 0) {
-      return "Se han realizado intentos de contacto sin respuesta aún. Continuar seguimiento en diferentes horarios."
-    }
-    return "Lead nuevo sin historial de contacto. Iniciar secuencia de seguimiento según protocolo."
+    return "Lead reciente ingresado por WhatsApp. Iniciar secuencia de seguimiento según protocolo."
   }
 
   const aiScore = calculateAIScore()

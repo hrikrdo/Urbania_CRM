@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       phone, first_name, last_name, email, cedula, income,
       project_interest, budget, timeframe, intent, score,
       conversation_url, chatwoot_conversation_id, conversation_history,
+      ai_summary,
     } = body
 
     if (!phone) return NextResponse.json({ error: "phone es requerido" }, { status: 400 })
@@ -41,6 +42,9 @@ export async function POST(req: NextRequest) {
       if (proj.length > 0) projectId = proj[0].id
     }
 
+    // ── 2b. Presupuesto desde income si no hay budget explícito ────────
+    const effectiveBudget = budget || income  // usar income como presupuesto si no hay otro valor
+
     // ── 3. Buscar lead existente ─────────────────────────────────────
     const existing = await query("SELECT id, cedula FROM leads WHERE phone = $1", [cleanPhone])
     let leadId: string
@@ -58,12 +62,15 @@ export async function POST(req: NextRequest) {
         movedToPrecal = true
       }
 
-      // Calcular presupuesto
-      let budgetMin = null, budgetMax = null
-      if (budget) {
-        const num = parseFloat(String(budget).replace(/[^0-9.]/g, ""))
-        if (!isNaN(num)) { budgetMin = num * 0.9; budgetMax = num * 1.1 }
+      // Calcular presupuesto desde income o budget
+      let budgetMin = null
+      if (effectiveBudget) {
+        const num = parseFloat(String(effectiveBudget).replace(/[^0-9.]/g, ""))
+        if (!isNaN(num) && num > 100) budgetMin = num
       }
+
+      // Temperatura: si tiene cédula = hot siempre
+      const newTemp = hasCedula ? "hot" : (score === "hot" ? "hot" : score === "warm" ? "warm" : null)
 
       await query(`
         UPDATE leads SET
@@ -73,12 +80,15 @@ export async function POST(req: NextRequest) {
           cedula = COALESCE(NULLIF($4,''), cedula),
           project_id = COALESCE($5, project_id),
           budget_min = COALESCE($6, budget_min),
-          budget_max = COALESCE($7, budget_max),
-          status_id = COALESCE($8, status_id),
-          temperature = CASE WHEN $9 = 'hot' THEN 'hot' WHEN $9 = 'warm' THEN 'warm' ELSE temperature END,
+          status_id = COALESCE($7, status_id),
+          temperature = COALESCE($8, temperature),
+          last_response_at = NOW(),
+          chat_attempts = chat_attempts + 1,
+          notes = COALESCE($9, notes),
           updated_at = NOW()
         WHERE id = $10
-      `, [first_name, last_name, email, cedula, projectId, budgetMin, budgetMax, newStatusId, score, leadId])
+      `, [first_name, last_name, email, cedula, projectId, budgetMin, newStatusId, newTemp,
+          ai_summary || null, leadId])
 
     } else {
       // Crear nuevo lead
@@ -90,31 +100,32 @@ export async function POST(req: NextRequest) {
       else if (score === "hot") initialStatus = statusMap["contactado"]
       else if (score === "warm") initialStatus = statusMap["en_conversacion"]
 
-      let budgetMin = null, budgetMax = null
-      if (budget) {
-        const num = parseFloat(String(budget).replace(/[^0-9.]/g, ""))
-        if (!isNaN(num)) { budgetMin = num * 0.9; budgetMax = num * 1.1 }
+      let budgetMin = null
+      if (effectiveBudget) {
+        const num = parseFloat(String(effectiveBudget).replace(/[^0-9.]/g, ""))
+        if (!isNaN(num) && num > 100) budgetMin = num
       }
 
-      const notes = [
-        conversation_url && `Chat Chatwoot: ${conversation_url}`,
+      // Si tiene cédula = hot (alto interés confirmado)
+      const initTemp = hasCedula ? "hot" : (score === "hot" ? "hot" : score === "warm" ? "warm" : "cold")
+
+      const notesExtra = [
         income && `Ingreso familiar: $${income}/mes`,
-        timeframe && `Plazo decisión: ${timeframe}`,
+        timeframe && `Plazo: ${timeframe}`,
         intent && `Intención: ${intent === "invest" ? "Inversión" : "Vivienda propia"}`,
       ].filter(Boolean).join(" | ")
 
       const rows = await query(`
         INSERT INTO leads (
           first_name, last_name, phone, email, cedula, source,
-          status_id, project_id, budget_min, budget_max,
-          temperature, notes
-        ) VALUES ($1,$2,$3,$4,$5,'whatsapp_bot',$6,$7,$8,$9,$10,$11)
+          status_id, project_id, budget_min,
+          temperature, notes, last_response_at, chat_attempts
+        ) VALUES ($1,$2,$3,$4,$5,'whatsapp_bot',$6,$7,$8,$9,$10,NOW(),1)
         RETURNING id
       `, [
         first_name, last_name || null, cleanPhone, email || null, cedula || null,
-        initialStatus, projectId, budgetMin, budgetMax,
-        score === "hot" ? "hot" : score === "warm" ? "warm" : "cold",
-        notes || null
+        initialStatus, projectId, budgetMin,
+        initTemp, ai_summary || notesExtra || null
       ])
       leadId = rows[0].id
     }
